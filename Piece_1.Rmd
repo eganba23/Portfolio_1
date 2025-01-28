@@ -7,24 +7,91 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+# Ok so I did this a year ago when I was trying things and now I no longer remember which packages I need. So I left them all in. I hate it too...
+library(haven)
+library(lme4)
+library(lmerTest)
+library(psych)
+library(emmeans)
+library(ltm)
+library(Matrix)
+library(sjPlot)
+library(reshape2)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(survMisc)
+library(hrbrthemes)
+library(geomtextpath)
+
+setwd("/Users/egan/Desktop/Gradschool/My Research")
+data <- read_spss("Current Dataset 2-28.sav")
+view(data)
+
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Family Decision Making
 
-```{r cars}
-summary(cars)
+
+### What is Family Decision Making
+
+Adolescents were presented with a variety o topics that families with adolescents often have to make decisions about, and chose the answer that best reflected who made most of the decisions on each topic. The scale ranged from 1 (My parents decide this without discussing it with me) to 5 (I decide this without discussing it with my parents), with 3 representing a joint decision (My parents and I make the decision together).
+
+
+
+```{r code to get it up to speed, echo = false}
+data$Country <- as.factor(data$IDN)
+Country <- factor(data$Country) #country into categorical variable
+data$AgeCM <- data$Age - mean(data$Age, na.rm=TRUE) #mean center age
+data$FDMCM <- data$FDM - mean(data$FDM, na.rm=TRUE) #mean center age
+
+
+#Data described by country describe.by(data, Country)
+
+
+#Figure out country closest to FDM grand mean for reference group - USA Hispanic
+FDM_means <- aggregate(x=data$FDM, by = list(data$Country), FUN = mean, na.rm=TRUE)
+print(FDM_means)
+
+
+#Figure out country closest to Int grand mean for reference group - Kenya
+Int_means <- aggregate(x=data$Int, by = list(data$Country), FUN = mean, na.rm=TRUE)
+print(Int_means)
+
+#Figure out country closest to Ext grand mean for reference group - Italy-Naples
+ext_means <- aggregate(x=data$ext, by = list(data$Country), FUN = mean, na.rm=TRUE)
+print(ext_means)
+
+
+
+#change values for males from 1 to 0 
+data$ChGender <- replace(data$ChGender, data$ChGender < 2, 0) 
+#change values for females from 2 to 1 
+data$ChGender <- replace(data$ChGender, data$ChGender > 0, 1) 
+
+
+#renaming Countries
+levels(data$Country)[levels(data$Country)=='1'] <- 'China-Jinan'
+levels(data$Country)[levels(data$Country)=='2'] <- 'China-Shanghai'
+levels(data$Country)[levels(data$Country)=='3'] <- 'Italy-Naples'
+levels(data$Country)[levels(data$Country)=='4'] <- 'Italy-Rome'
+levels(data$Country)[levels(data$Country)=='5'] <- 'Kenya'
+levels(data$Country)[levels(data$Country)=='6'] <- 'Philippines'
+levels(data$Country)[levels(data$Country)=='7'] <- 'Thailand'
+levels(data$Country)[levels(data$Country)=='8'] <- 'Sweden'
+levels(data$Country)[levels(data$Country)=='9'] <- 'USA-African American'
+levels(data$Country)[levels(data$Country)=='10'] <- 'USA-European American'
+levels(data$Country)[levels(data$Country)=='11'] <- 'USA-Hispanic'
+levels(data$Country)[levels(data$Country)=='12'] <- 'Colombia'
+levels(data$Country)[levels(data$Country)=='13'] <- 'Jordan'
+levels(data$Country)[levels(data$Country)=='16'] <- 'India'
+levels(data$Country)[levels(data$Country)=='17'] <- 'China-Chongqing'
+levels(data$Country)
+data$Country <- relevel(data$Country, ref = 'USA-Hispanic')
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
