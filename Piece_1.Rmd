@@ -49,23 +49,6 @@ data$AgeCM <- data$Age - mean(data$Age, na.rm=TRUE) #mean center age
 data$FDMCM <- data$FDM - mean(data$FDM, na.rm=TRUE) #mean center age
 
 
-#Data described by country describe.by(data, Country)
-
-
-#Figure out country closest to FDM grand mean for reference group - USA Hispanic
-FDM_means <- aggregate(x=data$FDM, by = list(data$Country), FUN = mean, na.rm=TRUE)
-print(FDM_means)
-
-
-#Figure out country closest to Int grand mean for reference group - Kenya
-Int_means <- aggregate(x=data$Int, by = list(data$Country), FUN = mean, na.rm=TRUE)
-print(Int_means)
-
-#Figure out country closest to Ext grand mean for reference group - Italy-Naples
-ext_means <- aggregate(x=data$ext, by = list(data$Country), FUN = mean, na.rm=TRUE)
-print(ext_means)
-
-
 
 #change values for males from 1 to 0 
 data$ChGender <- replace(data$ChGender, data$ChGender < 2, 0) 
