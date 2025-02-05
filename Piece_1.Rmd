@@ -33,7 +33,7 @@ data <- read_spss("FDM Dataset for Data Science.sav")
 
 ## Tragectories and Variations of Family Decision Making
 
-In this piece, I will demonstrate my graphing abilities along with understanding of lmer function.
+In this piece, I will demonstrate my graphing abilities.
 
 ### What is Family Decision Making
 
@@ -81,7 +81,10 @@ Several different variables were used for the following analyses. Alongside Fami
 levels(data$Country)
 
 ```
-```{r US data setup, echo = FALSE}
+### US Dataset Creation
+
+
+```{r US data setup}
 
 USdata <- subset(data,IDN ==9 | IDN == 10 | IDN == 11)
 USdata$Country <- as.factor(USdata$IDN)
@@ -99,7 +102,6 @@ data$Age_Exact <- round(data$Age, digits = 0)
 ## Plotting Family Decision Making in the United States
 
 
-
 ```{r multilevel model, echo = FALSE}
 #TEXT FOR IF I INCLUDE MY MODEL:   My first step was to create a multi-level model. The model below uses Family Decision Making as the outcome. The inputs were gender, country, and an interaction between age and country.
 
@@ -108,9 +110,14 @@ model.FDM_USA <- lmer(FDM ~ SES + ChGender + AgeCM + Country +   + Country*AgeCM
 ```
 
 
+
+
 I can now create a line graph to plot the multilevel model.
 
 ```{r plot model}
+
+
+
 
 USdata %>%
 ggplot(
