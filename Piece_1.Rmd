@@ -88,14 +88,10 @@ levels(data$Country)
 
 USdata <- subset(data,IDN ==9 | IDN == 10 | IDN == 11)
 USdata$Country <- as.factor(USdata$IDN)
-Country <- factor(data$Country) #country into categorical variable
 levels(USdata$Country)[levels(USdata$Country)=='9'] <- 'USA-African American'
 levels(USdata$Country)[levels(USdata$Country)=='10'] <- 'USA-European American'
 levels(USdata$Country)[levels(USdata$Country)=='11'] <- 'USA-Hispanic'
-USdata$Country <- relevel(USdata$Country, ref = 'USA-European American')
-USdata$AgeCM <- USdata$Age - mean(USdata$Age, na.rm=TRUE) #mean center age
-USdata$FDMCM <- USdata$FDM - mean(USdata$FDM, na.rm=TRUE) #mean center age
-data$Age_Exact <- round(data$Age, digits = 0)
+
 
 ```
 
@@ -106,28 +102,85 @@ data$Age_Exact <- round(data$Age, digits = 0)
 #TEXT FOR IF I INCLUDE MY MODEL:   My first step was to create a multi-level model. The model below uses Family Decision Making as the outcome. The inputs were gender, country, and an interaction between age and country.
 
 #model I used for FDM. Looking to incorporate this somehow? Not sure how.
+USdata$Country <- relevel(USdata$Country, ref = 'USA-European American')
+USdata$AgeCM <- USdata$Age - mean(USdata$Age, na.rm=TRUE) #mean center age
+USdata$FDMCM <- USdata$FDM - mean(USdata$FDM, na.rm=TRUE) #mean center age
+data$Age_Exact <- round(data$Age, digits = 0)
 model.FDM_USA <- lmer(FDM ~ SES + ChGender + AgeCM + Country +   + Country*AgeCM + (1|ID), data = USdata)
 ```
 
+I can begin by making a plot of Age and Family Decision Making. 
 
-
-
-I can now create a line graph to plot the multilevel model.
-
-```{r plot model}
-
-
-
+```{r base plot, warning = FALSE}
 
 USdata %>%
 ggplot(
   aes(
     x=Age,
     y = FDM,
-    group = Country, 
-    color = Country,
     )) + 
-  geom_smooth(se = FALSE) +
+  geom_smooth(
+    method = "loess",
+    formula = y~x,
+    se = FALSE, 
+    color = "black")+
+  theme_bw() +
+  labs(
+    x = "Age", 
+    y = "Family Decision Making", 
+    color = "Ethnicity",
+    title = "Age of Family Decision Making in the United States"
+    )
+
+```
+
+From this plot, we can see that as age increases, so does family decision making. There is a level off around 14- 16 years old, with an increase after age 16.
+
+
+This is cool, but we can make it better by creating graphs for each ethnicity to examine differences by ethnicity. 
+
+```{r plots broken out, warning = FALSE}
+
+USdata %>%
+ggplot(
+  aes(
+    x=Age,
+    y = FDM,
+    )) + 
+  geom_smooth(
+    method = "loess",
+    formula = y~x,
+    se = FALSE, 
+    color = "black")+
+  facet_wrap(~Country) +
+  theme_bw() +
+  labs(
+    x = "Age", 
+    y = "Family Decision Making", 
+    color = "Ethnicity",
+    title = "USA Age and Ethnicity Effects on Family Decision Making"
+    )
+
+```
+
+This shows that overall the trend is similar, but there are differences present. For example, European Americans start off higher in adolescent driven decisions than other ethnicities.
+
+
+We can overlay the lines to better see the ethnicity differences. 
+
+```{r overlay plot, warning = FALSE}
+
+USdata %>%
+ggplot(
+  aes(
+    x=Age,
+    y = FDM,
+    color = Country
+    )) + 
+ geom_smooth(
+   method = "loess",
+   formula = y~x,
+   se = FALSE) +
   theme_bw() +
   scale_color_manual(values=c("#0000ff", "#ff0000","#008000")) +
   labs(
@@ -138,3 +191,38 @@ ggplot(
     )
 
 ```
+
+Additionally, we can combine this graph with the orignal graph to compare each ethnicity to the overall average.
+
+```{r plot model, warning = FALSE}
+
+USdata %>%
+ggplot(
+  aes(
+    x=Age,
+    y = FDM,
+    color = Country
+    )) + 
+ geom_smooth(
+   method = "loess",
+   formula = y~x,
+   se = FALSE) +
+  geom_smooth(
+    aes(group = 1),
+    method = "loess",
+    formula = y~x,
+    se = FALSE,
+    color = "black"
+  ) +
+  theme_bw() +
+  scale_color_manual(values=c("#0000ff", "#ff0000","#008000")) +
+  labs(
+    x = "Age", 
+    y = "Family Decision Making", 
+    color = "Ethnicity",
+    title = "USA Age and Ethnicity Effects on Family Decision Making"
+    )
+
+```
+
+We can see that the African American adolescents  closely follows the average Family Decision Making in the United States, while European American and Hispanic adolescents straddle the average.
