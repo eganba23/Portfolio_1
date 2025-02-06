@@ -31,13 +31,13 @@ data <- read_spss("FDM Dataset for Data Science.sav")
 
 
 
-## Tragectories and Variations of Family Decision Making
+## Tragectories and Variations of Family Decision Making in the United States
 
 In this piece, I will demonstrate my graphing abilities.
 
 ### What is Family Decision Making
 
-Adolescents were presented with a variety o topics that families with adolescents often have to make decisions about, and chose the answer that best reflected who made most of the decisions on each topic. The scale ranged from 1 (My parents decide this without discussing it with me) to 5 (I decide this without discussing it with my parents), with 3 representing a joint decision (My parents and I make the decision together).
+Adolescents were presented with a variety o topics that families with adolescents often have to make decisions about, and chose the answer that best reflected who made most of the decisions on each topic. The scale ranged from 1 (My parents decide this without discussing it with me) to 5 (I decide this without discussing it with my parents), with 3 representing a joint decision (My parents and I make the decision together). Adolescents were asked these questions at three timepoints, two years and three years after the initial observation.
 
 
 ```{r seting up FDM, echo = FALSE}
@@ -75,7 +75,7 @@ data$Country <- relevel(data$Country, ref = 'USA-Hispanic')
 ```
 ### Data Being Used 
 
-Several different variables were used for the following analyses. Alongside Family Decision Making (FDM), Age (AgeCM), Socio-economic Status (SES), Gender (ChGender), and Country of origin were used to help identify potential trends in the data. Below are the countries utilized in this dataset. For now, I will only be working with people from the United States. 
+Several different variables were used for the following analyses. Alongside Family Decision Making (FDM), Age (AgeCM), Socio-economic Status (SES), Gender (ChGender), and Country of origin (Country) were used to help identify potential trends in the data. Below are the countries utilized in this dataset. For now, I will only be working with people from the United States. 
 
 ```{r showing data}
 levels(data$Country)
@@ -196,24 +196,28 @@ Additionally, we can combine this graph with the orignal graph to compare each e
 
 ```{r plot model, warning = FALSE}
 
-USdata %>%
+plot_grph <- USdata %>%
 ggplot(
   aes(
     x=Age,
     y = FDM,
     color = Country
     )) + 
- geom_smooth(
-   method = "loess",
-   formula = y~x,
-   se = FALSE) +
   geom_smooth(
     aes(group = 1),
     method = "loess",
     formula = y~x,
-    se = FALSE,
+    se = TRUE,
+    alpha = .3,
     color = "black"
-  ) +
+  ) 
+
+
+plot_grph +
+   geom_line(stat="smooth",
+   method = "loess",
+   formula = y~x,
+   se = FALSE) +
   theme_bw() +
   scale_color_manual(values=c("#0000ff", "#ff0000","#008000")) +
   labs(
